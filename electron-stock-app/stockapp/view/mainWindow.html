@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/4/superhero/bootstrap.min.css"
+    />
+    <title>Stock App</title>
+  </head>
+
+  <body>
+    <h1 class="d-flex justify-content-center">Stock app</h1>
+    <!-- file -->
+    <form id="file-form" class="md-form">
+      <div class="custom-file">
+        <input
+          type="file"
+          id="input-file"
+          class="custom-file-input"
+          aria-describedby="inputGroupFileAddon01"
+        />
+        <label class="custom-file-label" for="inputGroupFile01"
+          >Choose file</label
+        >
+        <button type="submit" class="btn btn-primary">Get Details</button>
+      </div>
+    </form>
+    <hr />
+    <h5 class="d-flex justify-content-center">OR</h5>
+    <hr />
+    <!-- input -->
+    <form id="input-form">
+      <div class="input-group mb-3">
+        <input
+          type="text"
+          id="input-text"
+          class="form-control"
+          placeholder="Company Name"
+        />
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-primary">Get Shares</button>
+        </div>
+      </div>
+    </form>
+    <!-- <form id="input-form">
+      <div class="row">
+        <div class="col-md-8 px-4">
+          <input
+            type="text"
+            id="input-text"
+            placeholder="Company Name"
+            class="form-group"
+          />
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-primary">Get Shares</button>
+        </div>
+      </div>
+    </form> -->
+
+    <table class="table table-striped">
+      <!-- <thead id="t-head">
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Key</th>
+          <th scope="col">Value</th>
+        </tr>
+      </thead> -->
+      <tbody id="t-body"></tbody>
+    </table>
+
+    <script>
+      const electron = require("electron");
+      const path = require("path");
+
+      const { PythonShell } = require("python-shell");
+      const { ipcRenderer } = electron;
+
+      const fileForm = document.querySelector("#file-form");
+      const inputForm = document.querySelector("#input-form");
+      const ul = document.querySelector("ul");
+      // document.getElementById("t-head").style.display = "none";
+
+      fileForm.addEventListener("submit", submitFileForm);
+      inputForm.addEventListener("submit", submitInputForm);
+
+      function submitFileForm(e) {
+        e.preventDefault();
+        const item = document.querySelector("#input-file");
+        console.log(item.files[0].path);
+        let options = {
+          scriptPath: path.join(__dirname, "../api/"),
+          args: ["path", item.files[0].path]
+        };
+        var pyshell = new PythonShell("index.py", options);
+        pyshell.on("message", message => {
+          console.log(message);
+          alert(message);
+        });
+      }
+
+      function submitInputForm(e) {
+        e.preventDefault();
+        const item = document.querySelector("#input-text").value;
+        console.log(item);
+
+        let options = {
+          scriptPath: path.join(__dirname, "../api/"),
+          args: ["keyword", item]
+        };
+        var pyshell = new PythonShell("index.py", options);
+        let count = 0;
+        pyshell.on("message", function(message) {
+          // document.getElementById("t-head").style.display = "block";
+          let data = message.split(":");
+          console.log("key...", data[0]);
+          console.log("value...", data[1]);
+
+          if (data[1]) {
+            let td1 = document.createElement("td");
+            let td2 = document.createElement("td");
+            let td3 = document.createElement("td");
+
+            let countData = document.createTextNode(count++);
+            let keyData = document.createTextNode(data[0]);
+            let valueData = document.createTextNode(data[1]);
+
+            td1.appendChild(countData);
+            td2.appendChild(keyData);
+            td3.appendChild(valueData);
+
+            let tBody = document.getElementById("t-body");
+            const tr = document.createElement("tr");
+
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tr.appendChild(td3);
+            tBody.appendChild(tr);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

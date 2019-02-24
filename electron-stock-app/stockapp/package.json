@@ -1,0 +1,17 @@
+{
+  "name": "stockapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "sumit singh",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^4.0.5"
+  },
+  "dependencies": {
+    "python-shell": "^1.0.7"
+  }
+}
